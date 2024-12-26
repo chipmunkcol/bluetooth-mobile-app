@@ -1,74 +1,152 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { useState } from 'react';
+// import 'expo-dev-client';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { useNavigation } from '@react-navigation/native';
+import { Dimensions, Linking, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+
+import { Color } from '@/app/styles/color';
+
+// import useBLE from '../hooks/useBLE';
+import DeviceModal from '../components/DeviceConnectionModal';
+import { useBLEContext } from '../context/bleContext';
+// import DeviceModal from './DeviceConnectionModal';
+
+const Stack = createNativeStackNavigator();
+const screenWidth = Dimensions.get('window').width;
+
+export default function Index() {
+    const {
+        allDevices,
+        connectedDevice,
+        connectToDevice,
+        cancelConnectionToDevice,
+        requestPermissions,
+        scanForPeripherals,
+    } = useBLEContext();
+    const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+
+    const scanForDevices = async () => {
+        const isPermissionsEnabled = await requestPermissions();
+        if (isPermissionsEnabled) {
+            scanForPeripherals();
+        }
+    };
+
+    const hideModal = () => {
+        setIsModalVisible(false);
+    };
+
+    const openModal = async () => {
+        scanForDevices();
+        setIsModalVisible(true);
+    };
+
+    const navigation = useNavigation();
+    const navigateToScreen = (title: string) => {
+        navigation.navigate(title);
+    };
+
+    const handlePress = () => {
+        const phoneNumber = '114';
+        Linking.openURL(`tel:${phoneNumber}`);
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+            {/* <StatusBar barStyle="dark-content" backgroundColor="#f2f2f2" /> */}
+            <View style={styles.rowContainer}>
+                <TouchableOpacity
+                    onPress={() => {
+                        connectedDevice ? cancelConnectionToDevice(connectedDevice) : openModal();
+                    }}
+                    style={styles.ctaButton}
+                >
+                    <Text style={styles.ctaButtonText}>{connectedDevice ? 'LUTECH 해제' : 'LUTECH 연결'}</Text>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.rowContainer}>
+                <TouchableOpacity onPress={() => navigateToScreen('sensing')} style={styles.menuItem}>
+                    <MaterialCommunityIcons name="heart-pulse" size={32} color="white" />
+                    <Text style={styles.menuText}>충전내역</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => alert('이 페이지는 현재 비활성화 상태입니다')} style={styles.menuItem}>
+                    <MaterialIcons name="touch-app" size={32} color="white" />
+                    <Text style={styles.menuText}>충전설정</Text>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.rowContainer}>
+                <TouchableOpacity onPress={() => alert('이 페이지는 현재 비활성화 상태입니다')} style={styles.menuItem}>
+                    <MaterialCommunityIcons name="account-edit" size={32} color="white" />
+                    <Text style={styles.menuText}>정보관리</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={handlePress} style={styles.menuItem}>
+                    <MaterialCommunityIcons name="hospital-building" size={32} color="white" />
+                    <Text style={styles.menuText}>비상호출</Text>
+                </TouchableOpacity>
+            </View>
+
+            <DeviceModal
+                closeModal={hideModal}
+                visible={isModalVisible}
+                connectToPeripheral={connectToDevice}
+                devices={allDevices}
+            />
+        </SafeAreaView>
+    );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+    container: {
+        flex: 1,
+        width: screenWidth,
+        backgroundColor: Color.back,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    rowContainer: {
+        width: '80%',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginVertical: 10,
+        paddingHorizontal: 20,
+    },
+    menuItem: {
+        width: screenWidth * 0.34,
+        height: 160,
+        backgroundColor: Color.main,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8,
+        flexDirection: 'column',
+        paddingVertical: 10,
+    },
+    menuText: {
+        color: 'white',
+        fontSize: 24,
+        marginTop: 10,
+        fontWeight: '700',
+    },
+    ctaButton: {
+        width: screenWidth * 0.7,
+        backgroundColor: Color.main,
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 70,
+        borderRadius: 8,
+    },
+    ctaButtonText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    disconnectedStyle: {
+        display: 'none',
+    },
 });
