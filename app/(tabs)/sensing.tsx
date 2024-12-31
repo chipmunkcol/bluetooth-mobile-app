@@ -1,212 +1,138 @@
+// import { Circle, Svg } from 'react-native-svg'; react-native-svg 호환이 안됨
 import React, { useEffect, useState, useMemo, useContext } from 'react';
-import { SafeAreaView, StyleSheet, Text, View, Dimensions, TouchableOpacity, Animated } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { SafeAreaView, StyleSheet, Text, View, Dimensions, TouchableOpacity, Animated, FlatList } from 'react-native';
+import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Color } from '@/app/styles/color';
 import { useBLEContext } from '../context/bleContext';
-// import { Circle, Svg } from 'react-native-svg'; react-native-svg 호환이 안됨
-import AntDesign from '@expo/vector-icons/AntDesign';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
+type Props = {
+    value: string;
+};
+
+const Item = ({ value }: Props) => {
+    return (
+        <View
+            style={{
+                width: screenWidth / 4 - 30,
+                height: 140,
+                backgroundColor: value === '0' ? '#A4D8E1' : '#005F8C',
+
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginVertical: 4,
+                marginHorizontal: 4,
+                borderRadius: 25,
+                boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
+            }}
+        >
+            <Text style={{ color: 'white', fontSize: 18, fontWeight: 600 }}>{value}</Text>
+        </View>
+    );
+};
+
 const Sensing = () => {
     const { connectedDevice, BLEData, isBLECharged, toggleCharging } = useBLEContext();
+    const dummy = [
+        { key: 'sensor1', value: '0' },
+        { key: 'sensor2', value: '0' },
+        { key: 'sensor3', value: '0' },
+        { key: 'sensor4', value: '0' },
+        { key: 'sensor5', value: '0' },
+        { key: 'sensor6', value: '0' },
+        { key: 'sensor7', value: '0' },
+        { key: 'sensor8', value: '0' },
+        { key: 'sensor9', value: '0' },
+        { key: 'sensor10', value: '0' },
+        { key: 'sensor11', value: '0' },
+        { key: 'sensor12', value: '0' },
+        { key: 'sensor13', value: '0' },
+        { key: 'sensor14', value: '0' },
+        { key: 'sensor15', value: '0' },
+        { key: 'sensor16', value: '0' },
+    ];
 
-    const [labels, setLabels] = useState([
-        { name: 'Status', unit: '0' },
-        { name: 'Voltage', unit: '0' },
-        { name: 'Current', unit: '0' },
-        { name: 'Frequency', unit: '0' },
-        { name: 'Power', unit: '0' },
-        { name: 'Factor', unit: '0' },
-    ]);
+    const [timestamp, setTimestamp] = useState(Date.now());
+    const [dummyArray, setDummyArray] = useState(dummy);
 
     useEffect(() => {
-        if (!BLEData.timeStamp) return;
-        const { timeStamp, status, voltage, current, frequency, power, factor } = BLEData;
-        const newLabels = [
-            { name: 'Status', unit: status },
-            { name: 'Voltage', unit: voltage },
-            { name: 'Current', unit: current },
-            { name: 'Frequency', unit: frequency },
-            { name: 'Power', unit: power },
-            { name: 'Factor', unit: factor },
-        ];
-        setLabels(newLabels);
-    }, [BLEData]);
-
-    const resetLabels = () => {
-        setLabels([
-            { name: 'Status', unit: '0' },
-            { name: 'Voltage', unit: '0' },
-            { name: 'Current', unit: '0' },
-            { name: 'Frequency', unit: '0' },
-            { name: 'Power', unit: '0' },
-            { name: 'Factor', unit: '0' },
-        ]);
-    };
-    useEffect(() => {
-        if (!connectedDevice) {
-            resetLabels();
+        console.log('BLEData:', BLEData);
+        if (BLEData && BLEData?.sensorDatas.length > 0) {
+            setDummyArray(BLEData?.sensorDatas);
+            setTimestamp(BLEData?.timestamp);
         }
-    }, [connectedDevice]);
-
+    }, [BLEData]);
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.progressContainer}>
-                <Text>충전 내역 모니터링</Text>
-            </View>
-
-            <View style={styles.progressContainer2}>
-                <View style={styles.circle}>
-                    <View style={styles.innerCircle}>
-                        {isBLECharged ? (
-                            <TouchableOpacity onPress={() => toggleCharging(connectedDevice)}>
-                                <FontAwesome6 name="pause" size={50} color="red" />
-                            </TouchableOpacity>
-                        ) : (
-                            <TouchableOpacity onPress={() => toggleCharging(connectedDevice)}>
-                                <AntDesign name="caretright" size={50} color="red" />
-                            </TouchableOpacity>
-                        )}
-                    </View>
+            <View style={styles.timestamp}>
+                {/* <Text>{timestamp}</Text> */}
+                <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 24 }}>
+                    <MaterialCommunityIcons name="clock-time-four-outline" size={20} color="#93B5C6" />
                 </View>
-                <View style={styles.horizontalContainers}>
-                    {labels.map((label, index) => (
-                        <View key={index} style={styles.flexhor}>
-                            <View style={styles.labelwrap}>
-                                <Text style={styles.label}>{label.name}</Text>
-                            </View>
-                            <View style={styles.labelvaluewrap}>
-                                <Text style={styles.labelvalue}>{label.unit}</Text>
-                            </View>
-                        </View>
-                    ))}
-                </View>
+                <Text style={styles.timestampText}>{timestamp}</Text>
             </View>
+            <FlatList
+                data={dummyArray}
+                numColumns={4}
+                keyExtractor={(item) => `센서현황-${item.key}`}
+                renderItem={({ item }) => <Item value={item.value} />}
+                contentContainerStyle={styles.flatListContent}
+            ></FlatList>
         </SafeAreaView>
     );
 };
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        height: screenHeight,
+        height: '100%',
         backgroundColor: Color.back,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    progressContainer: {
-        width: screenWidth * 0.9,
-        borderRadius: 30,
-        borderWidth: 5,
-        borderColor: Color.border,
-        overflow: 'hidden',
-        backgroundColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
         position: 'relative',
-        paddingTop: 10,
-        paddingBottom: 10,
-        paddingLeft: 10,
-        paddingRight: 10,
-        marginBottom: 5,
-        height: screenHeight * 0.37,
     },
-
-    circle: {
-        width: 130,
-        height: 130,
-        borderRadius: '50%',
-        borderColor: '#D3D3D3',
-        borderWidth: 10,
-        justifyContent: 'center',
+    flatListContent: {
+        width: '100%',
+        // height: '100%',
         alignItems: 'center',
-    },
-    innerCircle: {
-        width: 107,
-        height: 107,
-        borderRadius: '50%',
-        borderColor: '#D3D3D3',
-        borderWidth: 3,
         justifyContent: 'center',
-        alignItems: 'center',
     },
-    pabsolute: {
-        width: screenWidth * 0.65,
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column',
-    },
-    progressContainer2: {
+    timestamp: {
+        display: 'flex',
         flexDirection: 'row',
-        width: screenWidth * 0.9,
-        borderRadius: 30,
-        borderWidth: 5,
-        borderColor: Color.border,
-        overflow: 'hidden',
-        backgroundColor: '#fff',
+        gap: 7,
         alignItems: 'center',
-        // justifyContent: 'space-around',
-        justifyContent: 'center',
-        gap: 20,
-        position: 'relative',
-        paddingBottom: 10,
-        paddingTop: 10,
-        paddingLeft: 10,
-        paddingRight: 10,
-        height: screenHeight * 0.37,
+        justifyContent: 'flex-end',
+        height: 80,
+        // paddingTop: 50,
+        // paddingBottom: 10,
+        paddingRight: 52,
+        // paddingLeft: 10,
+        backgroundColor: Color.back,
     },
-    horizontalContainers: {
-        // width: 144,
-    },
-    flexhor: {
-        width: 170,
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 5,
-        borderWidth: 1,
-        borderColor: Color.main,
-        borderRadius: 10,
-        height: 38,
-    },
-    labelwrap: {
-        backgroundColor: Color.main,
-        // padding: 1,
-        height: 40,
-        width: 100,
-        borderTopLeftRadius: 10,
-        borderBottomLeftRadius: 10,
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    label: {
+    timestampText: {
         fontSize: 14,
-        fontWeight: '800',
-        // textAlign: 'center',
-        color: '#fff',
-        // height: 40,
-        // lineHeight: 40,
+        fontWeight: 600,
+        color: '#93B5C6',
     },
-    labelvaluewrap: {
-        // padding: 2,
-        width: 70,
-        height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        // flexDirection: 'row',
-    },
-    labelvalue: {
-        fontSize: 14,
-        fontWeight: '900',
-        color: '#828282',
-        // textAlign: 'center',
-        // justifyContent: 'flex-end',
-        // width: 30,
-        // height: 40,
-        // lineHeight: 40,
-    },
+    // item: {},
 });
 
 export default Sensing;
+
+// borderRadius: 5,
+// boxShadow: '0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22)',
+// boxShadow: '0 1px 2px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.23)',
+// boxShadow: '0 2px 4px rgba(0,0,0,0.16), 0 2px 4px rgba(0,0,0,0.23)',
+
+// progressContainer: {
+//     display: 'flex',
+//     width: screenWidth * 0.92,
+//     height: screenHeight * 0.55,
+//     borderRadius: 25,
+//     borderWidth: 5,
+//     borderColor: Color.border,
+//     overflow: 'hidden',
+//     backgroundColor: '#fff',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+// },

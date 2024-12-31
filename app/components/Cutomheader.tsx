@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     },
     titleText: {
         fontSize: 22,
-        fontWeight: '900',
+        fontWeight: '600',
         color: '#fff',
     },
     logoutButton: {

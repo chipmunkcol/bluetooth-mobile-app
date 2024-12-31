@@ -7,6 +7,7 @@ import * as ExpoDevice from 'expo-device';
 
 import { BleError, BleManager, Characteristic, Device } from 'react-native-ble-plx';
 import { TypeBLEData } from '../types/type';
+import { changeUnix } from '../hooks/util';
 
 // const DATA_SERVICE_UUID = "0000FFB1-0000-1000-8000-00805F9B34FB";
 const DATA_SERVICE_UUID = '0000FFB0-0000-1000-8000-00805F9B34FB';
@@ -15,21 +16,21 @@ const WRITE_CHARACTERISTIC_UUID = '0000FFB2-0000-1000-8000-00805F9B34FB';
 
 const bleManager = new BleManager();
 
+export type BLEDataType = {
+    timestamp: string;
+    sensorDatas: {
+        key: string;
+        value: string;
+    }[];
+};
+
 export const BLEContext = createContext({});
 
 export const BLEProvider = ({ children }: { children: React.ReactNode }) => {
     const [allDevices, setAllDevices] = useState<Device[]>([]);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
 
-    const [BLEData, setBLEData] = useState<TypeBLEData | null>({
-        timeStamp: '',
-        status: '',
-        voltage: '',
-        current: '',
-        frequency: '',
-        power: '',
-        factor: '',
-    });
+    const [BLEData, setBLEData] = useState<BLEDataType | null>(null);
     const [isBLECharged, setIsBLECharged] = useState(false);
     const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now());
     const [currentTime, setCurrentTime] = useState<number>(Date.now());
@@ -135,30 +136,55 @@ export const BLEProvider = ({ children }: { children: React.ReactNode }) => {
     // 기기 연결 후 date 업데이트
     // 기기 연결 후 date 업데이트
 
-    const currentTimestamp = Math.floor(Date.now() / 1000); // 초 단위로 변환
-    const fourByteUnixTime = currentTimestamp.toString(16).toString().toUpperCase();
-
     const parseSensorData = (hexString: string) => {
         if (!hexString) return null;
 
         const timeStamp = hexString.substring(0, 8);
-        const status = hexString.substring(8, 10);
-        const voltage = hexString.substring(10, 12);
-        const current = hexString.substring(12, 14);
-        const frequency = hexString.substring(14, 16);
-        const power = hexString.substring(16, 18);
-        const factor = hexString.substring(18, 20);
+        const sensor1 = hexString.substring(8, 10);
+        const sensor2 = hexString.substring(10, 12);
+        const sensor3 = hexString.substring(12, 14);
+        const sensor4 = hexString.substring(14, 16);
+        const sensor5 = hexString.substring(16, 18);
+        const sensor6 = hexString.substring(18, 20);
+        const sensor7 = hexString.substring(20, 22);
+        const sensor8 = hexString.substring(22, 24);
+        const sensor9 = hexString.substring(24, 26);
+        const sensor10 = hexString.substring(26, 28);
+        const sensor11 = hexString.substring(28, 30);
+        const sensor12 = hexString.substring(30, 32);
+        const sensor13 = hexString.substring(32, 34);
+        const sensor14 = hexString.substring(34, 36);
+        const sensor15 = hexString.substring(36, 38);
+        const sensor16 = hexString.substring(38, 40);
 
-        return {
+        const temp = {
             //           timedata: changeUnix(timeData),
-            timeStamp: parseInt(timeStamp, 16).toString(),
-            status: parseInt(status, 16).toString(),
-            voltage: parseInt(voltage, 16).toString(),
-            current: parseInt(current, 16).toString(),
-            frequency: parseInt(frequency, 16).toString(),
-            power: parseInt(power, 16).toString(),
-            factor: parseInt(factor, 16).toString(),
+            sensor1: parseInt(sensor1, 16).toString(),
+            sensor2: parseInt(sensor2, 16).toString(),
+            sensor3: parseInt(sensor3, 16).toString(),
+            sensor4: parseInt(sensor4, 16).toString(),
+            sensor5: parseInt(sensor5, 16).toString(),
+            sensor6: parseInt(sensor6, 16).toString(),
+            sensor7: parseInt(sensor7, 16).toString(),
+            sensor8: parseInt(sensor8, 16).toString(),
+            sensor9: parseInt(sensor9, 16).toString(),
+            sensor10: parseInt(sensor10, 16).toString(),
+            sensor11: parseInt(sensor11, 16).toString(),
+            sensor12: parseInt(sensor12, 16).toString(),
+            sensor13: parseInt(sensor13, 16).toString(),
+            sensor14: parseInt(sensor14, 16).toString(),
+            sensor15: parseInt(sensor15, 16).toString(),
+            sensor16: parseInt(sensor16, 16).toString(),
         };
+        const sensorArray = Object.entries(temp).map(([key, value]) => {
+            return { key, value };
+        });
+
+        const BLEData = {
+            timestamp: changeUnix(timeStamp),
+            sensorDatas: sensorArray,
+        };
+        return BLEData;
     };
 
     const onDataUpdate = (error: BleError | null, characteristic: Characteristic | null) => {
@@ -232,7 +258,6 @@ export const BLEProvider = ({ children }: { children: React.ReactNode }) => {
             BLEData,
             requestPermissions,
             scanForPeripherals,
-            fourByteUnixTime,
             isBLECharged,
             setIsBLECharged,
             toggleCharging,

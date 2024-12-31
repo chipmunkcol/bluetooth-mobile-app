@@ -64,19 +64,19 @@ export default function Index() {
                     }}
                     style={styles.ctaButton}
                 >
-                    <Text style={styles.ctaButtonText}>{connectedDevice ? 'LUTECH 해제' : 'LUTECH 연결'}</Text>
+                    <Text style={styles.ctaButtonText}>{connectedDevice ? 'SENSOMEDI 해제' : 'SENSOMEDI 연결'}</Text>
                 </TouchableOpacity>
             </View>
 
             <View style={styles.rowContainer}>
                 <TouchableOpacity onPress={() => navigateToScreen('sensing')} style={styles.menuItem}>
                     <MaterialCommunityIcons name="heart-pulse" size={32} color="white" />
-                    <Text style={styles.menuText}>충전내역</Text>
+                    <Text style={styles.menuText}>센서현황</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => alert('이 페이지는 현재 비활성화 상태입니다')} style={styles.menuItem}>
                     <MaterialIcons name="touch-app" size={32} color="white" />
-                    <Text style={styles.menuText}>충전설정</Text>
+                    <Text style={styles.menuText}>센서설정</Text>
                 </TouchableOpacity>
             </View>
 
@@ -142,8 +142,8 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     ctaButtonText: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 22,
+        fontWeight: 600,
         color: 'white',
     },
     disconnectedStyle: {

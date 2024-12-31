@@ -12,9 +12,6 @@ import Customheader from '../components/Cutomheader';
 const TabIcon = ({ name, size, color }) => {
     return <MaterialCommunityIcons name={name} size={size} color={color} />;
 };
-const TabIcons = ({ name, size, color }) => {
-    return <MaterialIcons name={name} size={size} color={color} />;
-};
 
 export default function TabLayout() {
     return (
@@ -23,53 +20,31 @@ export default function TabLayout() {
                 <Tabs.Screen
                     name="sensing"
                     options={{
-                        title: '충전내역',
-                        header: () => <Customheader title="충전내역" />,
+                        title: '센서현황',
+                        header: () => <Customheader title="센서현황" />,
                         tabBarActiveTintColor: Color.main,
                         tabBarInactiveTintColor: '#93B5C6',
-                        tabBarIcon: (props) => TabIcon({ ...props, name: 'monitor-multiple' }),
+                        tabBarLabelStyle: { fontSize: 14 },
+                        tabBarStyle: { height: 60 },
+                        tabBarIcon: ({ color }) => (
+                            <MaterialCommunityIcons name="monitor-multiple" size={26} color={color} />
+                        ),
                     }}
                 />
                 <Tabs.Screen
                     name="index"
                     options={{
-                        title: 'LUTECH',
-                        header: () => <Customheader title="LUTECH" />,
+                        // title: 'Sensomedi',
+                        title: 'SENSOMEDI',
+                        header: () => <Customheader title="SENSOMEDI" />,
                         tabBarActiveTintColor: Color.main,
                         tabBarInactiveTintColor: '#93B5C6',
-                        tabBarIcon: (props) => TabIcon({ ...props, name: 'cog' }),
+                        tabBarLabelStyle: { fontSize: 14 },
+                        tabBarStyle: { height: 60 },
+                        tabBarIcon: ({ color }) => <MaterialCommunityIcons name="cog" size={26} color={color} />,
                     }}
                 />
             </Tabs>
         </>
     );
 }
-
-// <Tabs screenOptions={{ tabBarActiveTintColor: '#ffd33d' }}>
-//     <Tabs.Screen
-//         name="index"
-//         options={{
-//             title: 'LUTECH',
-//             headerTitleAlign: 'center',
-//             headerTitleStyle: { color: '#fff' },
-//             headerStyle: { backgroundColor: Color.main },
-//             // headerTitleContainerStyle: { , backgroundColor: '#25292e' },
-//             tabBarIcon: ({ color, focused }) => (
-//                 <Ionicons name={focused ? 'home-sharp' : 'home-outline'} color={color} size={24} />
-//             ),
-//         }}
-//     />
-//     <Tabs.Screen
-//         name="about"
-//         options={{
-//             title: 'About',
-//             tabBarIcon: ({ color, focused }) => (
-//                 <Ionicons
-//                     name={focused ? 'information-circle' : 'information-circle-outline'}
-//                     color={color}
-//                     size={24}
-//                 />
-//             ),
-//         }}
-//     />
-// </Tabs>
